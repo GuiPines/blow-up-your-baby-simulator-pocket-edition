@@ -7,12 +7,17 @@ open class Rectangle(position: Vector?, var width: Float, var height: Float, col
     GameObject(
         position!!
     ), Caged {
+
     // Set up the paint.
     var paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     init {
         paint.color = color
         paint.style = Paint.Style.FILL
+    }
+
+    fun setColor(newColor: Int) {
+        paint.color = newColor
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -28,13 +33,17 @@ open class Rectangle(position: Vector?, var width: Float, var height: Float, col
     }
 
     override fun hitLeftWall(): Boolean {
-        return (position.x - width / 2) <= gameSurface!!.width
+        return (position.x - width / 2) <= 100
     }
 
     override fun hitRightWall(): Boolean {
-        return (position.x + width / 2) >= gameSurface!!.width
+        return (position.x + width / 2) >= gameSurface!!.width - 100
+    }
+
+    override fun hitCeiling(): Boolean {
+        return (position.y - height / 2) <= 100
     }
 
     override val isFloored: Boolean
-        get() = (position.y + height / 2) >= gameSurface!!.height
+        get() = (position.y + height / 2) >= gameSurface!!.height - 200
 }

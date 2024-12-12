@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import com.innoveworkshop.gametest.assets.Explosive
 import java.util.Timer
 import java.util.TimerTask
 
@@ -18,7 +19,9 @@ class GameSurface @JvmOverloads constructor(
     private var root: GameObject? = null
 
     // Create the GameObject list.
-    private val gameObjects = ArrayList<GameObject>()
+    val gameObjects = ArrayList<GameObject>()
+
+    private val delayedRemovals = mutableListOf<GameObject>()
 
     init {
         // Ensure we are on top of everything.
@@ -66,12 +69,27 @@ class GameSurface @JvmOverloads constructor(
         return gameObjects.remove(gameObject)
     }
 
+    fun addDelayedRemoval(obj: GameObject) {
+        delayedRemovals.add(obj)
+    }
+
+    fun processDelayedRemovals() {
+        for (obj in delayedRemovals) {
+            removeGameObject(obj)
+        }
+        delayedRemovals.clear()
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
         root!!.onDraw(canvas)
         for (gameObject in gameObjects) {
             gameObject.onDraw(canvas)
+
+            if (gameObject is Explosive) {
+                gameObject.drawExplosionEffect(canvas)
+            }
         }
     }
 
@@ -81,7 +99,10 @@ class GameSurface @JvmOverloads constructor(
                 gameObject.onFixedUpdate()
             }
 
+            processDelayedRemovals()
+
             root!!.onFixedUpdate()
+
             invalidate()
         }
     }
